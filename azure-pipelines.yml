@@ -1,0 +1,37 @@
+trigger:
+- master
+- main
+
+pool:
+  name: 'Default' # Force it to use your laptop
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'Restore'
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build'
+  inputs:
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Pack'
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/*.csproj'
+    versioningScheme: 'off'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Push to Feed'
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    publishVstsFeed: 'Lab4-Artifacts-CICD/StringExtensionsFeed'
